@@ -1,0 +1,2048 @@
+openapi: 3.0.4
+
+info:
+  title: Django Admin Adapter - OpenAPI 3.0
+  description: |-
+    This is the OpenAPI specification for the Django Admin API Adapter package
+  contact:
+    email: alkiviadis.aliferis@gmail.com
+  license:
+    name: MIT
+    url: https://opensource.org/license/mit
+  version: 1.0.0
+
+externalDocs:
+  description: Find out more about Django Admin API Adapter
+  url: https://github.com/AlkiviadisAleiferis
+
+tags:
+  - name: Authenticate
+    description: Token retrieve / refresh endpoints.
+
+  - name: Base info
+    description: Base info for the basic site structure and permissions.
+
+  - name: List
+    description: Admin list endpoints.
+
+  - name: Object Create
+    description: Admin object create endpoints. Used for creating an object.
+
+  - name: Object View
+    description: Admin object view endpoint. Used for viewing an object.
+
+  - name: Object Update
+    description: Admin object update endpoints. Used for updating the object.
+
+  - name: Object Delete
+    description: Admin object delete endpoints. Used for deleting the object.
+
+  - name: Object History
+    description: Admin object history endpoint. Used for retrieving the object's history.
+
+  - name: Autocomplete
+    description: Admin autocomplete for related fields and filters.
+
+paths:
+# Authentication paths
+  /token/:
+    post:
+      tags:
+        - Authenticate
+      summary: Retrieve access and refresh tokens. The token includes in decoded fields, the username and user string representation in fields "username" and "identifier" respectively.
+      description: Retrieve access and refresh tokens. The token includes in decoded fields, the username and user string representation in fields "username" and "identifier" respectively.
+      operationId: token_obtain_pair
+      requestBody:
+        description: Retrieve access and refresh tokens.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRetrieve'
+        required: true
+      responses:
+        '200':
+          description: Successful token retrieve
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRetrieveResponse'
+        '400':
+          description: Username or password not provided
+        '401':
+          description: Username or password wrong
+        '500':
+          description: Unexpected error
+
+  /token/refresh/:
+    post:
+      tags:
+        - Authenticate
+      summary: Retrieve access and refresh tokens.
+      description: Retrieve access and refresh tokens.
+      operationId: token_refresh
+      requestBody:
+        description: Retrieve access and refresh tokens.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          description: Successful token retrieve
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefreshResponse'
+        '400':
+          description: Wrong refresh token
+        '500':
+          description: Unexpected error
+
+  /password_change/:
+    post:
+      tags:
+        - Authenticate
+      summary: Password change.
+      description: A `UserAdmin` must be registered on the `AdminSite` for the `AUTH_USER_MODEL`, using the `django.contrib.auth.admin.BaseUserAdmin`
+      operationId: password_change
+      requestBody:
+        description: Password change.
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+        required: true
+      responses:
+        '200':
+          description: Successful password change
+        '400':
+          description: Wrong old password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordChangeError'
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: In case the `UserModelAdmin` doesnt exist, or the user hasn't permission.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+# Base info paths
+  /base_info/:
+    get:
+      tags:
+        - "Base info"
+      summary: Retrieve base site info.
+      description: Retrieve base site info.
+      operationId: base_info
+      responses:
+        '200':
+          description: Successful base site info retrieve.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseInfoResponse'
+        '403':
+          description: Not permitted
+        '401':
+          description: Token is not correct or expired.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+# Admin List / Create
+  /{app_name}/{model_name}/info/:
+    get:
+      tags:
+        - List
+      summary: Info for the app's model list.
+      description: Info for the app's model list.
+      operationId: admin_list_info
+      parameters:
+        - name: app_name
+          in: path
+          description: Django Application name
+          example: "library"
+          required: true
+          schema:
+            type: string
+        - name: model_name
+          in: path
+          description: Django Model name
+          example: "author"
+          required: true
+          schema:
+            type: string
+        - name: filter_parameneter_name
+          in: query
+          description: The name of the filter's parameter (used in GET query)
+          example: "2025-06-12T13:02"
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful data retrieve.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminListInfoResponse'
+        '400':
+          description: Incorrect app_name/model_name path parameters OR incorrect query parameters.
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: Not permitted. Either no view permission or base admin site permission, or query parameters wrong / not allowed.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+  /{app_name}/{model_name}/add/:
+    get:
+      tags:
+        - Object Create
+      summary: Get necessary metadata for creating an object of the app's model.
+      description: Get necessary metadata for creating an object of the app's model.
+      operationId: admin_object_add
+      parameters:
+        - name: app_name
+          in: path
+          description: Django Application name
+          example: "library"
+          required: true
+          schema:
+            type: string
+        - name: model_name
+          in: path
+          description: Django Model name
+          example: "author"
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful data retrieve.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminObjectAddResponse'
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: Not permitted. Either no view permission or base admin site permission, or query parameters not allowed.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+  /{app_name}/{model_name}/:
+    post:
+      tags:
+        - Object Create
+      summary: Create an object of the app's model.
+      description: Create an object of the app's model. Retrieve first the fields names/types and inlines fields names/types and Management Forms from the add object endpoint. There is no standard in the types of the fields and is related ot the `ModelAdmin` class registered by the user, and the `Model` itself.
+      operationId: admin_object_create
+      parameters:
+        - name: app_name
+          in: path
+          description: Django Application name
+          example: "library"
+          required: true
+          schema:
+            type: string
+        - name: model_name
+          in: path
+          description: Django Model name
+          example: "author"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The data for the new object creation.
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminObjectCreate'
+      responses:
+        '200':
+          description: Successful creation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminObjectCreateSuccessResponse'
+        '400':
+          description: Error on creation due to provided data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminObjectCreateErrorsResponse'
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: Not permitted. Either no add permission or base admin site permission.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+
+    get:
+      tags:
+        - List
+      summary: List objects of the app's model.
+      description: List objects of the app's model.
+      operationId: admin_list
+      parameters:
+        - name: app_name
+          in: path
+          description: Django Application name
+          example: "library"
+          required: true
+          schema:
+            type: string
+        - name: model_name
+          in: path
+          description: Django Model name
+          example: "author"
+          required: true
+          schema:
+            type: string
+        - name: p
+          in: query
+          description: The current page
+          example: 1
+          required: false
+          schema:
+            type: integer
+        - name: q
+          in: query
+          description: Search with text
+          example: "search text"
+          required: false
+          schema:
+            type: string
+        - name: all
+          in: query
+          description: Show all results (must be available from model admin)
+          example: "true"
+          required: false
+          schema:
+            type: boolean
+        - name: filter_parameneter_name
+          in: query
+          description: The name of the filter's parameter (used in GET query)
+          example: "2025-06-12T13:02"
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful data retrieve.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminListResponse'
+        '400':
+          description: Incorrect app_name/model_name path parameters OR incorrect query parameters.
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: Not permitted. Either no view permission or base admin site permission, or query parameters not allowed.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+  /{app_name}/{model_name}/{pk}/view/:
+    get:
+      tags:
+        - Object View
+      summary: Preview an object of the app's model.
+      description: Preview an object of the app's model.
+      operationId: admin_object_preview
+      parameters:
+        - name: app_name
+          in: path
+          description: Django Application name
+          example: "library"
+          required: true
+          schema:
+            type: string
+        - name: model_name
+          in: path
+          description: Django Model name
+          example: "author"
+          required: true
+          schema:
+            type: string
+        - name: pk
+          in: path
+          description: Django Model name
+          example: "34"
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful data retrieve.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminObjectViewResponse'
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: Not permitted. Either no view permission or base admin site permission.
+        '404':
+          description: Object not found.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+  /{app_name}/{model_name}/{pk}/:
+    put:
+      tags:
+        - Object Update
+      summary: Update an object of the app's model.
+      description: Update an object of the app's model. Retrieve first the fields values/names/types and inlines fields values/names/types and Management Forms from the edit object endpoint. There is no standard in the types of the fields and is related ot the `ModelAdmin` class registered by the user, and the `Model` itself.
+      operationId: admin_object_update
+      parameters:
+        - name: app_name
+          in: path
+          description: Django Application name
+          example: "library"
+          required: true
+          schema:
+            type: string
+        - name: model_name
+          in: path
+          description: Django Model name
+          example: "author"
+          required: true
+          schema:
+            type: string
+        - name: pk
+          in: path
+          description: Django Model name
+          example: "34"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The data for the new object creation.
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminObjectCreate'
+      responses:
+        '200':
+          description: Successful creation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminObjectUpdateSuccessResponse'
+        '400':
+          description: Error on creation due to provided data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminObjectCreateErrorsResponse'
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: Not permitted. Either no change permission or base admin site permission.
+        '404':
+          description: Object not found.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+    delete:
+      tags:
+        - Object Delete
+      summary: Delete an object of the app's model.
+      description: Delete an object of the app's model. Retrieve first the data from the delete object endpoint to make sure deletion is allowed die to permissions or connected objects.
+      operationId: admin_object_delete
+      parameters:
+        - name: app_name
+          in: path
+          description: Django Application name
+          example: "library"
+          required: true
+          schema:
+            type: string
+        - name: model_name
+          in: path
+          description: Django Model name
+          example: "author"
+          required: true
+          schema:
+            type: string
+        - name: pk
+          in: path
+          description: Django Model name
+          example: "34"
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful deletion.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminObjectDeleteSuccessResponse'
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: Not permitted. Either no delete permission or base admin site permission or not allowed due to connected objects.
+        '404':
+          description: Object not found.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+  /{app_name}/{model_name}/{pk}/edit/:
+    get:
+      tags:
+        - Object Update
+      summary: Get necessary data/metadata for updating an object of the app's model.
+      description: Get necessary data/metadata for updating an object of the app's model.
+      operationId: admin_object_edit
+      parameters:
+        - name: app_name
+          in: path
+          description: Django Application name
+          example: "library"
+          required: true
+          schema:
+            type: string
+        - name: model_name
+          in: path
+          description: Django Model name
+          example: "author"
+          required: true
+          schema:
+            type: string
+        - name: pk
+          in: path
+          description: Django Model name
+          example: "34"
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful data retrieve.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminObjectEditResponse'
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: Not permitted. Either no change or view permission or base admin site permission.
+        '404':
+          description: Object not found.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+  /{app_name}/{model_name}/{pk}/delete/:
+    get:
+      tags:
+        - Object Delete
+      summary: Get necessary data/metadata for deleting an object of the app's model.
+      description: Get necessary data/metadata for deleting an object of the app's model.
+      operationId: admin_object_confirm_delete
+      parameters:
+        - name: app_name
+          in: path
+          description: Django Application name
+          example: "library"
+          required: true
+          schema:
+            type: string
+        - name: model_name
+          in: path
+          description: Django Model name
+          example: "author"
+          required: true
+          schema:
+            type: string
+        - name: pk
+          in: path
+          description: Django Model name
+          example: "34"
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful data retrieve.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminObjectConfirmDeleteResponse'
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: Not permitted. Either no change or view permission or base admin site permission.
+        '404':
+          description: Object not found.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+  /{app_name}/{model_name}/{pk}/history/:
+    get:
+      tags:
+        - Object History
+      summary: Get history data for an object of the app's model.
+      description: Get history data for an object of the app's model.
+      operationId: admin_object_history
+      parameters:
+        - name: app_name
+          in: path
+          description: Django Application name
+          example: "library"
+          required: true
+          schema:
+            type: string
+        - name: model_name
+          in: path
+          description: Django Model name
+          example: "author"
+          required: true
+          schema:
+            type: string
+        - name: pk
+          in: path
+          description: Django Model name
+          example: "34"
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful data retrieve.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminObjectHistoryResponse'
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: Not permitted. Either no view permission or base admin site permission.
+        '404':
+          description: Object not found.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+  /{app_name}/{model_name}/action/{action_name}/preview/:
+    post:
+      tags:
+        - List
+      summary: Preview List Action.
+      description: Preview List Action. Should return the data to build the confirm view of the action.
+      operationId: admin_list_action_preview
+      parameters:
+        - name: app_name
+          in: path
+          description: Django Application name
+          example: "library"
+          required: true
+          schema:
+            type: string
+        - name: model_name
+          in: path
+          description: Django Model name
+          example: "author"
+          required: true
+          schema:
+            type: string
+        - name: action_name
+          in: path
+          description: List action name (systemic)
+          example: "delete_selected"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Retrieve action preview for provided objects.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminListAction'
+      responses:
+        '200':
+          description: Successful action confirm retrieve.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminListActionPreviewResponse'
+        '400':
+          description: Invalid data provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessagesResponse'
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: Action not permitted.
+        '404':
+          description: Action not found.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+  /{app_name}/{model_name}/action/{action_name}/execute/:
+    post:
+      tags:
+        - List
+      summary: Execute List Action.
+      description: Retrieve and execute List Action. Should return the messages regarding the execution result.
+      operationId: admin_list_action_execute
+      parameters:
+        - name: app_name
+          in: path
+          description: Django Application name
+          example: "library"
+          required: true
+          schema:
+            type: string
+        - name: model_name
+          in: path
+          description: Django Model name
+          example: "author"
+          required: true
+          schema:
+            type: string
+        - name: action_name
+          in: path
+          description: List action name (systemic)
+          example: "delete_selected"
+          required: true
+          schema:
+            type: string
+
+      requestBody:
+        description: Retrieve action preview for provided objects.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminListAction'
+
+      responses:
+        '200':
+          description: Successful action confirm retrieve.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessagesResponse'
+        '400':
+          description: Invalid data provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessagesResponse'
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: Action not permitted.
+        '404':
+          description: Action not found.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+# Autocomplete
+  /filter_autocomplete/{app_name}/{model_name}/:
+    get:
+      tags:
+        - Autocomplete
+      summary: Retrieve search of objects of the app's model, using a search term.
+      description: Retrieve search of objects of the app's model, using a search term.
+      operationId: filter_autocomplete
+      parameters:
+        - name: app_name
+          in: path
+          description: Django Application name
+          example: "library"
+          required: true
+          schema:
+            type: string
+        - name: model_name
+          in: path
+          description: Django Model name
+          example: "author"
+          required: true
+          schema:
+            type: string
+        - name: q
+          in: query
+          description: search term
+          example: "Lord of the Rings"
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful data retrieve.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutocompleteResponse'
+        '400':
+          description: Error on data send.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: "Message error"
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: Not permitted. Either no view permission or base admin site permission.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+  /filter_autocomplete/{app_name}/{model_name}/{pk}/:
+    get:
+      tags:
+        - Autocomplete
+      summary: Retrieve the pk and representation of an object of the app's model.
+      description: Retrieve the pk and representation of an object of the app's model. Used for adding the label of the autocomplete filter if list view opened with URL containing the filter's value.
+      operationId: filter_autocomplete_retrieve_label
+      parameters:
+        - name: app_name
+          in: path
+          description: Django Application name
+          example: "library"
+          required: true
+          schema:
+            type: string
+        - name: model_name
+          in: path
+          description: Django Model name
+          example: "author"
+          required: true
+          schema:
+            type: string
+        - name: pk
+          in: path
+          description: Object pk
+          example: "34"
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful data retrieve.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterAutocompleteRetrieveLabelResponse'
+        '400':
+          description: Error on data send.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: "Message error"
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: Not permitted. Either no view permission or base admin site permission.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+  /field_autocomplete/:
+    get:
+      tags:
+        - Autocomplete
+      summary: Retrieve search of objects of the app's model, using a search term.
+      description: Retrieve search of objects of the app's model, using a search term.
+      operationId: field_autocomplete
+      parameters:
+        - name: app_name
+          in: query
+          description: Django Application name
+          example: "library"
+          required: true
+          schema:
+            type: string
+        - name: model_name
+          in: query
+          description: Django Model name
+          example: "author"
+          required: true
+          schema:
+            type: string
+        - name: field_name
+          in: query
+          description: Field name of the source model
+          example: "34"
+          required: true
+          schema:
+            type: string
+        - name: q
+          in: query
+          description: search term
+          example: "34"
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful data retrieve.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutocompleteResponse'
+        '400':
+          description: Error on data send.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: "Message error"
+        '401':
+          description: Token is not correct or expired.
+        '403':
+          description: Not permitted. Either no view permission or base admin site permission.
+        '500':
+          description: Unexpected error
+      security:
+        - simple_jwt_token: []
+
+components:
+  schemas:
+
+    TokenRetrieve:
+      required:
+        - username
+        - password
+      type: object
+      properties:
+        username:
+          type: string
+          example: "username"
+        password:
+          type: string
+          example: "1234(please_dont_use_that_pass)"
+          format: password
+
+    TokenRetrieveResponse:
+      type: object
+      properties:
+        access:
+          type: string
+          example: "access_token_string"
+        refresh:
+          type: string
+          example: "refresh_token_string"
+
+    TokenRefresh:
+      required:
+        - refresh
+      type: object
+      properties:
+        refresh:
+          type: string
+          example: "refresh_token"
+
+    TokenRefreshResponse:
+      required:
+        - refresh
+      type: object
+      properties:
+        access:
+          type: string
+          example: "new_access_token"
+
+    PasswordChange:
+      required:
+        - old_password
+        - password1
+        - password2
+      type: object
+      properties:
+        old_password:
+          type: string
+          example: "Old_passW0rd"
+          format: password
+        password1:
+          type: string
+          example: "New_passW0rd"
+          format: password
+        password2:
+          type: string
+          example: "New_passW0rd"
+          format: password
+
+    PasswordChangeError:
+      type: object
+      properties:
+        error_data:
+          type: object
+          properties:
+            old_password:
+              type: array
+              items:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error message for field 'old_password'"
+            password1:
+              type: array
+              items:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error message for field 'password1'"
+            password2:
+              type: array
+              items:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error message for field 'password2'"
+            __all__:
+              type: array
+              items:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error message for all fields"
+
+    BaseInfoResponse:
+      type: object
+      required:
+        - sidebar
+        - profile
+        - extra
+      properties:
+        sidebar:
+          type: array
+          description: Sidebar navigation entries
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/ModelSidebarEntry'
+              - $ref: '#/components/schemas/ViewSidebarEntry'
+              - $ref: '#/components/schemas/DropdownSidebarEntry'
+        profile:
+          $ref: '#/components/schemas/UserProfile'
+        extra_data:
+          $ref: '#/components/schemas/ExtraData'
+    ModelSidebarEntry:
+      type: object
+      required:
+        - type
+        - label
+        - app_name
+        - model_name
+        - permissions
+      properties:
+        type:
+          type: string
+          enum: [model]
+        label:
+          type: string
+          description: Display label for the model
+        icon:
+          type: string
+          nullable: true
+          description: Icon identifier for the model
+        app_name:
+          type: string
+          description: Django app name
+        model_name:
+          type: string
+          description: Django model name
+        permissions:
+          type: object
+          required:
+            - view
+            - add
+            - delete
+          properties:
+            view:
+              type: boolean
+              description: Always true if entry is visible
+            add:
+              type: boolean
+              description: Whether user can add new instances
+            delete:
+              type: boolean
+              description: Whether user can delete instances
+
+    ViewSidebarEntry:
+      type: object
+      required:
+        - type
+        - label
+        - client_view_path
+        - view_name
+      properties:
+        type:
+          type: string
+          enum: [view]
+        label:
+          type: string
+          description: Display label for the view
+        client_view_path:
+          type: string
+          description: Client-side route path
+        icon:
+          type: string
+          nullable: true
+          description: Icon identifier for the view
+        view_name:
+          type: string
+          description: View identifier name
+
+    DropdownSidebarEntry:
+      type: object
+      required:
+        - type
+        - label
+        - dropdown_entries
+      properties:
+        type:
+          type: string
+          enum: [dropdown]
+        label:
+          type: string
+          description: Display label for the dropdown
+        icon:
+          type: string
+          nullable: true
+          description: Icon identifier for the dropdown
+        dropdown_entries:
+          type: array
+          description: Nested entries within the dropdown
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/ModelSidebarEntry'
+              - $ref: '#/components/schemas/ViewSidebarEntry'
+
+    UserProfile:
+      type: object
+      required:
+        - user_pk
+        - app_name
+        - model_name
+        - password_change
+      properties:
+        user_pk:
+          type: integer
+          nullable: true
+          description: Primary key of the current user (null if no view permission)
+        app_name:
+          type: string
+          nullable: true
+          description: App label of the user model (null if no view permission)
+        model_name:
+          type: string
+          nullable: true
+          description: Model name of the user model (null if no view permission)
+        password_change:
+          type: boolean
+          description: Whether user has permission to change their password
+
+
+    AdminListInfoResponse:
+      type: object
+      properties:
+        filters:
+          type: array
+          items:
+            type: object
+            required:
+              - field_name
+              - parameter_name
+              - disabled_by_default
+              - title
+            properties:
+              field_name:
+                type: string
+                example: "model_field_name"
+              parameter_name:
+                type: string
+                example: "filter_parameter_used_in_query"
+              disabled_by_default:
+                type: boolean
+              title:
+                type: string
+                example: "The Filter's title to display"
+              type:
+                type: string
+                example: "autocomplete , choice , number, text etc.."
+              choices:
+                type: array
+                example: ["systemic_value", "Diplay value"]
+                items:
+                  type: array
+                  minItems: 2
+                  maxItems: 2
+                  items:
+                    type: string
+              app_name:
+                type: string
+                example: "library"
+                description: "Used for autocomplete filter type"
+                nullable: true
+              model_name:
+                type: string
+                example: "author"
+                description: "Used for autocomplete filter type"
+                nullable: true
+              input_type:
+                type: string
+                enum: [number, text, date, datetime]
+                example: "text"
+                nullable: true
+              input_min:
+                type: integer
+                example: 5
+                nullable: true
+              input_max:
+                type: integer
+                example: 5
+                nullable: true
+              step:
+                type: number
+                example: 0.1
+                nullable: true
+              placeholder:
+                type: string
+                example: "placeholder text in input"
+                nullable: true
+
+        actions:
+          example: [["", "---------"], ["delete_selected", "Delete selected projects"]]
+          minItems: 1
+          type: array
+          items:
+            type: array
+            minItems: 2
+            maxItems: 2
+            items:
+              type: string
+        extra_data:
+          $ref: '#/components/schemas/ExtraData'
+        list_max_show_all:
+          type: boolean
+        sortable_by:
+          type: array
+          items:
+            type: string
+            example: ["field1", "field2", ".."]
+
+    AdminListResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              pk:
+                type: string
+                example: "The object's pk"
+              field_name_1:
+                type: integer
+                example: 1
+              field_name_2:
+                type: string
+                example: "A string field"
+              field_name_N:
+                type: string
+                example: "The N-th field"
+        page:
+          type: integer
+          example: 1
+        total_pages:
+          type: integer
+          example: 3
+        total_objects_num:
+          type: integer
+          example: 1000
+        list_max_show_all:
+          type: boolean
+
+    AdminListAction:
+      type: object
+      properties:
+        select_across:
+          type: integer
+          enum: [0 ,1]
+          example: 1
+        selected_objects:
+          type: string
+          example: "1,2,5,67,888"
+
+    AdminListActionPreviewResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Action name"
+        description:
+          type: string
+          example: "Description for the specified action and queryset selected"
+
+    Permissions:
+      type: object
+      properties:
+        view:
+          type: boolean
+        add:
+          type: boolean
+        change:
+          type: boolean
+        delete:
+          type: boolean
+
+    ObjectPermissions:
+      type: object
+      properties:
+        view:
+          type: boolean
+        change:
+          type: boolean
+        delete:
+          type: boolean
+
+    FieldsList:
+      type: array
+      example: ["fieldname_x", "fieldname_y"]
+      items:
+        type: string
+        example: "fieldname_x"
+
+    ClassesList:
+      type: array
+      example: ["class_x", "class_y"]
+      items:
+        type: string
+        example: "class_x"
+
+    FormField:
+      type: object
+      required:
+        - type
+        - label
+        - help_text
+        - initial
+      properties:
+        type:
+          type: string
+          enum: ["CharField", "SlugField", "URLField", "EmailField", "FloatField", "ChoiceField", "TypedChoiceField", "TextField", "DateField", "DateTimeField", "JSONField", "ModelChoiceField", "ModelMultipleChoiceField", "hidden", "BooleanField"]
+          example: "CharField"
+        label:
+          type: string
+          example: "Field display name"
+        required:
+          type: boolean
+        help_text:
+          type: string
+          example: "Help text found on model field's help_text attribute"
+        initial:
+          anyOf:
+            - type: string
+            - type: boolean
+            - type: number
+            - type: object
+            - type: array
+          example: "intial_value"
+        choices:
+          type: array
+          items:
+            type: array
+            minItems: 2
+            maxItems: 2
+            items:
+              type: string
+              example: ["value", "Display value"]
+        app:
+          type: string
+          example: "library"
+        model:
+          type: string
+          example: "book"
+        autocomplete:
+          type: boolean
+        permissions:
+          $ref: '#/components/schemas/Permissions'
+
+    ObjectData:
+      type: object
+      required:
+        - type
+        - label
+        - help_text
+        - value
+      properties:
+        type:
+          type: string
+          enum: ["CharField", "SlugField", "UUIDField", "URLField", "EmailField", "IntegerField", "FloatField", "ChoiceField", "TypedChoiceField", "TextField", "DateField", "DateTimeField", "JSONField", "ModelField", "ManyRelatedField", "RelatedField", "BooleanField"]
+          example: "CharField"
+        label:
+          type: string
+          example: "Field display name"
+        required:
+          type: boolean
+        help_text:
+          type: string
+          example: "Help text found on model field's help_text attribute"
+        value:
+          anyOf:
+            - type: string
+            - type: boolean
+            - type: number
+            - type: object
+            - type: array
+          example: "intial_value"
+        pk:
+          anyOf:
+          - type: string
+          - type: number
+          example: 22
+        app:
+          type: string
+          example: "library"
+        model:
+          type: string
+          example: "book"
+        permissions:
+          $ref: '#/components/schemas/Permissions'
+
+    PreviewInline:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: ["tabular", "stacked"]
+          example: "tabular"
+        label:
+          type: string
+          example: "Unfinished Books"
+        app:
+          type: string
+          example: "library"
+        model:
+          type: string
+          example: "book"
+        objects:
+          type: array
+          items:
+            type: object
+            properties:
+              field_name:
+                $ref: '#/components/schemas/ObjectData'
+        all_fieldnames:
+          $ref: '#/components/schemas/FieldsList'
+
+    FormFieldsData:
+      type: object
+      properties:
+        fieldname:
+          $ref: '#/components/schemas/FormField'
+
+    Fieldsets:
+      type: array
+      items:
+        type: array
+        minItems: 2
+        maxItems: 2
+        items:
+          anyOf:
+          - type: string
+            nullable: true
+            example: "Fieldset name"
+          - type: object
+            properties:
+              fields:
+                $ref: '#/components/schemas/FieldsList'
+              classes:
+                $ref: '#/components/schemas/ClassesList'
+
+    ManagementForm:
+      type: object
+      properties:
+        prefix:
+          type: string
+          example: "inline_formset_prefix"
+        readonly_fields:
+          type: array
+          example: []
+          items:
+            minItems: 0
+            maxItems: 0
+            type: string
+            nullable: true
+        fields:
+          type: object
+          properties:
+            TOTAL_FORMS:
+              type: object
+              properties:
+                type:
+                  type: integer
+                  example: "IntegerField"
+                label:
+                  type: string
+                  nullable: true
+                  example: null
+                required:
+                  type: boolean
+                help_text:
+                  type: string
+                  example: ""
+                initial:
+                  type: integer
+                  example: 2
+            INITIAL_FORMS:
+              type: object
+              properties:
+                type:
+                  type: integer
+                  example: "IntegerField"
+                label:
+                  type: string
+                  nullable: true
+                  example: null
+                required:
+                  type: boolean
+                help_text:
+                  type: string
+                  example: ""
+                initial:
+                  type: integer
+                  example: 0
+            MIN_NUM_FORMS:
+              type: object
+              properties:
+                type:
+                  type: integer
+                  example: "IntegerField"
+                label:
+                  type: string
+                  nullable: true
+                  example: null
+                required:
+                  type: boolean
+                help_text:
+                  type: string
+                  example: ""
+                initial:
+                  type: integer
+                  example: 0
+            MAX_NUM_FORMS:
+              type: object
+              properties:
+                type:
+                  type: integer
+                  example: "IntegerField"
+                label:
+                  type: string
+                  nullable: true
+                  example: null
+                required:
+                  type: boolean
+                help_text:
+                  type: string
+                  example: ""
+                initial:
+                  type: integer
+                  example: 30
+
+    InlineAdd:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: ["tabular", "stacked"]
+          example: "tabular"
+        pk_name:
+          type: string
+          example: "id"
+        label:
+          type: string
+          example: "Unfinished Books"
+        app:
+          type: string
+          example: "library"
+        model:
+          type: string
+          example: "unifinishedbook"
+        prefix:
+          type: string
+          example: "inline_formset_prefix" # (unifinishedbook_set)
+        min_forms_num:
+          type: integer
+          example: 1
+        max_forms_num:
+          type: integer
+          example: 30
+        management_form:
+          $ref: '#/components/schemas/ManagementForm'
+        permissions:
+          $ref: '#/components/schemas/Permissions'
+        forms:
+          type: array
+          items:
+            type: object
+            properties:
+              readonly_fields:
+                $ref: '#/components/schemas/FieldsList'
+              fields:
+                $ref: '#/components/schemas/FormFieldsData'
+              prefix:
+                type: string
+                example: "inline_formset_prefix-3"
+        extra_form:
+          type: object
+          properties:
+            readonly_fields:
+              $ref: '#/components/schemas/FieldsList'
+            fields:
+              $ref: '#/components/schemas/FormFieldsData'
+            prefix:
+              type: string
+              example: "inline_formset_prefix-__prefix__"
+
+    InlineEdit:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: ["tabular", "stacked"]
+          example: "tabular"
+        pk_name:
+          type: string
+          example: "id"
+        label:
+          type: string
+          example: "Unfinished Books"
+        app:
+          type: string
+          example: "library"
+        model:
+          type: string
+          example: "unifinishedbook"
+        prefix:
+          type: string
+          example: "inline_formset_prefix" # (unifinishedbook_set)
+        min_forms_num:
+          type: integer
+          example: 1
+        max_forms_num:
+          type: integer
+          example: 30
+        management_form:
+          $ref: '#/components/schemas/ManagementForm'
+        permissions:
+          $ref: '#/components/schemas/Permissions'
+        forms:
+          type: array
+          items:
+            type: object
+            properties:
+              readonly_fields:
+                type: object
+                properties:
+                  readonly_field_name:
+                    $ref: '#/components/schemas/ObjectData'
+              fields:
+                $ref: '#/components/schemas/FormFieldsData'
+              prefix:
+                type: string
+                example: "inline_formset_prefix-3"
+        extra_form:
+          type: object
+          properties:
+            readonly_fields:
+              type: object
+              properties:
+                readonly_fieldname:
+                  $ref: '#/components/schemas/ObjectData'
+            fields:
+              $ref: '#/components/schemas/FormFieldsData'
+            prefix:
+              type: string
+              example: "inline_formset_prefix-__prefix__"
+
+    AdminObjectAddResponse:
+      type: object
+      properties:
+        app:
+          type: string
+          example: "library"
+        model:
+          type: string
+          example: "author"
+        fieldsets:
+          $ref: '#/components/schemas/Fieldsets'
+        readonly_fields:
+          type: object
+          properties:
+            readonly_fieldname:
+              $ref: '#/components/schemas/ObjectData'
+        fields:
+          $ref: '#/components/schemas/FormFieldsData'
+        inlines:
+          type: array
+          items:
+            $ref: '#/components/schemas/InlineAdd'
+        extra_data:
+          $ref: '#/components/schemas/ExtraData'
+
+    AdminObjectViewResponse:
+      type: object
+      properties:
+        object_repr:
+          type: string
+          example: "Object representation"
+        fieldsets:
+          $ref: '#/components/schemas/Fieldsets'
+        object:
+          type: object
+          properties:
+            fieldname:
+              $ref: '#/components/schemas/ObjectData'
+        permissions:
+          $ref: '#/components/schemas/ObjectPermissions'
+        inlines:
+          type: array
+          items:
+            $ref: '#/components/schemas/PreviewInline'
+        extra_data:
+          $ref: '#/components/schemas/ExtraData'
+
+    AdminObjectEditResponse:
+      type: object
+      properties:
+        app:
+          type: string
+          example: "library"
+        model:
+          type: string
+          example: "author"
+        fieldsets:
+          $ref: '#/components/schemas/Fieldsets'
+        readonly_fields:
+          type: object
+          properties:
+            readonly_fieldname:
+              $ref: '#/components/schemas/ObjectData'
+        fields:
+          $ref: '#/components/schemas/FormFieldsData'
+        inlines:
+          type: array
+          items:
+            $ref: '#/components/schemas/InlineEdit'
+        extra_data:
+          $ref: '#/components/schemas/ExtraData'
+
+    AdminObjectConfirmDeleteResponse:
+      type: object
+      properties:
+        object_repr:
+          type: string
+          example: "Object Repr (id:1)"
+        permissions:
+          type: object
+          properties:
+            view:
+              type: boolean
+            delete:
+              type: boolean
+        deleted_objects:
+          type: array
+          example: ["Object 1 repr", "Object 2 repr", ["Nested Object repr", "Nested Object repr"]]
+          items:
+            anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: string
+        model_count:
+          type: object
+          properties:
+            "Model verbose plural name":
+              type: string
+              example: "12"
+        perms_needed:
+          type: array
+          items:
+            type: string
+            example: "Model verbose name (with not delete permission)"
+        protected:
+          type: array
+          items:
+            type: string
+            example: "Object repr or HTML <a>"
+        extra_data:
+          $ref: '#/components/schemas/ExtraData'
+
+    AdminObjectHistoryResponse:
+      type: object
+      properties:
+        object_repr:
+          type: string
+          example: "Object Repr (id:1)"
+        data:
+          type: object
+          properties:
+            results:
+              type: array
+              items:
+                type: object
+                properties:
+                  action_time:
+                    type: string
+                    example: "%d %B %Y -- %H:%M"
+                  user:
+                    type: string
+                    example: "String repr of the user"
+                  action:
+                    type: string
+                    enum:
+                      - Addition
+                      - Change
+                      - Deletion
+                    example: "Change"
+                  description:
+                    type: string
+                    example: "`LogEntry` change message with human format"
+            page:
+              type: integer
+              example: 1
+            total_pages:
+              type: integer
+              example: 2
+            total_objects_num:
+              type: integer
+              example: 100
+
+    AdminObjectCreate:
+      type: object
+      properties:
+        # base form data
+        field_name_1:
+          anyOf:
+            - type: string
+            - type: number
+            - type: integer
+            - type: boolean
+        field_name_N:
+          anyOf:
+            - type: string
+            - type: number
+            - type: integer
+            - type: boolean
+        # inline data for every inline
+        inline_formset_prefix-TOTAL_FORMS:
+          type: integer
+          example: 1
+        inline_formset_prefix-INITIAL_FORMS:
+          type: integer
+          example: 1
+        inline_formset_prefix-MIN_NUM_FORMS:
+          type: integer
+          example: 1
+        inline_formset_prefix-MAX_NUM_FORMS:
+          type: integer
+          example: 1
+        inline_formset_prefix-form_number-field_name_1:
+          anyOf:
+            - type: string
+            - type: number
+            - type: integer
+            - type: boolean
+        inline_formset_prefix-form_number-field_name_N:
+          anyOf:
+            - type: string
+            - type: number
+            - type: integer
+            - type: boolean
+        inline_formset_prefix-form_number-DELETE:
+          anyOf:
+            - type: string
+            - type: number
+            - type: integer
+            - type: boolean
+
+    FormErrors:
+      type: object
+      properties:
+        fieldname:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Error about the specific field"
+              code:
+                type: string
+                example: "unique"
+        __all__:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Error targeting the whole of the Form"
+              code:
+                type: string
+                example: "unique"
+
+    AdminObjectCreateErrorsResponse:
+      type: object
+      properties:
+        errror_data:
+          $ref: '#/components/schemas/FormErrors'
+        inlines_error_data:
+          type: object
+          properties:
+            inline_prefix_name:
+              type: object
+              properties:
+                forms_errors:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormErrors'
+                non_forms_errors:
+                  example: ["rror message", ".."]
+                  type: array
+                  items:
+                    type: string
+
+    AdminObjectCreateSuccessResponse:
+      type: object
+      properties:
+        messages:
+          example: ["New object {object} was created successfully"]
+          type: array
+          items:
+            type: string
+        object:
+          type: object
+          properties:
+            pk:
+              anyOf:
+                - type: string
+                - type: number
+              example: 234
+            str:
+              type: string
+              example: "New object repr"
+
+    AdminObjectUpdateSuccessResponse:
+      type: object
+      properties:
+        messages:
+          example: ["{object} updated successfully"]
+          type: array
+          items:
+            type: string
+
+    AdminObjectDeleteSuccessResponse:
+      type: object
+      properties:
+        messages:
+          example: ["The object {object} was deleted successfully"]
+          type: array
+          items:
+            type: string
+
+    AutocompleteResponse:
+      nullable: true
+      type: array
+      items:
+        type: object
+        properties:
+          value:
+            example: 123
+            anyOf:
+              - type: string
+              - type: integer
+          label:
+            example: "Object represenation"
+            type: string
+
+    FilterAutocompleteRetrieveLabelResponse:
+      type: object
+      properties:
+        value:
+          example: 123
+          anyOf:
+            - type: string
+            - type: integer
+        label:
+          example: "Object represenation"
+          type: string
+
+    MessagesResponse:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            type: string
+            example: "Message body"
+
+    ExtraData:
+      example: "anything.. list/object etc"
+      anyOf:
+        - type: string
+        - type: boolean
+        - type: number
+        - type: object
+        - type: array
+          items:
+            anyOf:
+              - type: string
+              - type: boolean
+              - type: number
+              - type: object
+
+  securitySchemes:
+    simple_jwt_token:
+      type: apiKey
+      name: simple_jwt_token
+      in: header

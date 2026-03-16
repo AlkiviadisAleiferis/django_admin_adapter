@@ -1,0 +1,14 @@
+{% load i18n %}
+
+<div class="col-12 col-md-3 col-xl-2 d-flex flex-column justify-content-center align-items-start filter-container-div py-2" id="{{ field_name }}_container" style="display: none !important;">
+    {% with choices.0 as all_choice %}
+    <p><b>{{ title }}</b></p>
+    {% comment %} {% if not all_choice.selected %}
+    <strong><a href="{{ all_choice.query_string }}">⨉ {% trans 'Remove' %}</a></strong>
+    {% endif %} {% endcomment %}
+    <input class="custom-search-filter w-100"
+        {{ spec.input_type }} {{ spec.input_min }} {{ spec.input_max }} {{ spec.step }} {{ spec.placeholder }} value="{{ spec.value|default_if_none:'' }}" aria-hidden="true"
+        data-name="{{ field_name }}" name="{{ spec.parameter_name }}" id="{{ field_name }}_filter"
+        filter-title="{{ title }}" {% if spec.disabled_by_default %}disabled_by_default{% endif %}/>
+    {% endwith %}
+</div>

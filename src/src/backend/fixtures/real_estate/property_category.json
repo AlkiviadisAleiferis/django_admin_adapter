@@ -1,0 +1,66 @@
+[
+    {
+        "model": "real_estate.propertycategory",
+        "pk": 1,
+        "fields": {
+            "name": "House",
+            "slug": "house"
+        }
+    },
+    {
+        "model": "real_estate.propertycategory",
+        "pk": 2,
+        "fields": {
+            "name": "Apartment",
+            "slug": "apartment"
+        }
+    },
+    {
+        "model": "real_estate.propertycategory",
+        "pk": 3,
+        "fields": {
+            "name": "Land",
+            "slug": "land"
+        }
+    },
+    {
+        "model": "real_estate.propertycategory",
+        "pk": 4,
+        "fields": {
+            "name": "Retail",
+            "slug": "retail"
+        }
+    },
+    {
+        "model": "real_estate.propertycategory",
+        "pk": 5,
+        "fields": {
+            "name": "Office",
+            "slug": "office"
+        }
+    },
+    {
+        "model": "real_estate.propertycategory",
+        "pk": 6,
+        "fields": {
+            "name": "Building",
+            "slug": "building"
+        }
+    },
+    {
+        "model": "real_estate.propertycategory",
+        "pk": 7,
+        "fields": {
+            "name": "Hotel",
+            "slug": "hotel"
+        }
+    },
+    {
+        "model": "real_estate.propertycategory",
+        "pk": 8,
+        "fields": {
+            "name": "Other",
+            "slug": "other"
+        }
+    }
+]

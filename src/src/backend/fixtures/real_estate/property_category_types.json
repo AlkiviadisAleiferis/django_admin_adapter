@@ -1,0 +1,299 @@
+[
+    {
+        "model": "real_estate.propertytype",
+        "pk": 1,
+        "fields": {
+            "name": "Duplex",
+            "slug": "duplex",
+            "category": 2
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 2,
+        "fields": {
+            "name": "Ground apartment",
+            "slug": "ground-apartment",
+            "category": 2
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 3,
+        "fields": {
+            "name": "Loft",
+            "slug": "loft",
+            "category": 2
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 4,
+        "fields": {
+            "name": "Maisonette",
+            "slug": "maisonette",
+            "category": 2
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 5,
+        "fields": {
+            "name": "Penthouse",
+            "slug": "penthouse",
+            "category": 2
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 6,
+        "fields": {
+            "name": "Standard apartment",
+            "slug": "standard-apartment",
+            "category": 2
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 7,
+        "fields": {
+            "name": "Studio",
+            "slug": "studio",
+            "category": 2
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 8,
+        "fields": {
+            "name": "Whole floor",
+            "slug": "whole-floor",
+            "category": 2
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 9,
+        "fields": {
+            "name": "Detached house",
+            "slug": "detached-house",
+            "category": 1
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 11,
+        "fields": {
+            "name": "Maisonette house",
+            "slug": "maisonette-house",
+            "category": 1
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 12,
+        "fields": {
+            "name": "Mansion/Villa",
+            "slug": "mansion-villa",
+            "category": 1
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 13,
+        "fields": {
+            "name": "Semi-detached house",
+            "slug": "semi-detached-house",
+            "category": 1
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 14,
+        "fields": {
+            "name": "Townhouse",
+            "slug": "townhouse",
+            "category": 1
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 15,
+        "fields": {
+            "name": "Commercial",
+            "slug": "commercial",
+            "category": 6
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 16,
+        "fields": {
+            "name": "Mixed-use",
+            "slug": "mixed-use",
+            "category": 6
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 17,
+        "fields": {
+            "name": "Office",
+            "slug": "office",
+            "category": 6
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 18,
+        "fields": {
+            "name": "Residential",
+            "slug": "residential",
+            "category": 6
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 19,
+        "fields": {
+            "name": "Retail",
+            "slug": "retail",
+            "category": 6
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 20,
+        "fields": {
+            "name": "Restaurant",
+            "slug": "restaurant",
+            "category": 4
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 21,
+        "fields": {
+            "name": "Shop",
+            "slug": "shop",
+            "category": 4
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 22,
+        "fields": {
+            "name": "Showroom",
+            "slug": "showroom",
+            "category": 4
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 23,
+        "fields": {
+            "name": "Store",
+            "slug": "store",
+            "category": 4
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 24,
+        "fields": {
+            "name": "Entire building",
+            "slug": "entire-building",
+            "category": 5
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 25,
+        "fields": {
+            "name": "Ground",
+            "slug": "ground",
+            "category": 5
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 26,
+        "fields": {
+            "name": "Standard office",
+            "slug": "standard-office",
+            "category": 5
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 27,
+        "fields": {
+            "name": "Top floor",
+            "slug": "top-floor",
+            "category": 5
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 29,
+        "fields": {
+            "name": "Entire floor",
+            "slug": "entire-floor",
+            "category": 5
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 30,
+        "fields": {
+            "name": "Hotel",
+            "slug": "hotel",
+            "category": 7
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 31,
+        "fields": {
+            "name": "Hotel apartments",
+            "slug": "hotel-apartments",
+            "category": 7
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 32,
+        "fields": {
+            "name": "Agricultural",
+            "slug": "agricultural",
+            "category": 3
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 33,
+        "fields": {
+            "name": "Field",
+            "slug": "field",
+            "category": 3
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 34,
+        "fields": {
+            "name": "Plot",
+            "slug": "plot",
+            "category": 3
+        }
+    },
+    {
+        "model": "real_estate.propertytype",
+        "pk": 35,
+        "fields": {
+            "name": "Plot within settlement",
+            "slug": "plot-within-settlement",
+            "category": 3
+        }
+    }
+]

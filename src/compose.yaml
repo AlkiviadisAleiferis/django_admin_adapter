@@ -1,0 +1,165 @@
+services:
+
+  db:
+    restart: always
+    env_file: ./.env
+    image: postgres:16.4-bookworm
+    environment:
+      HOSTNAME: "postgre"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: ${PGDATA}
+    volumes:
+      - ./data/db/postgredata:${PGDATA}
+      - ./data/db/dumps:${DUMP_DIR}
+    expose:
+      - ${DB_PORT}
+    networks:
+      common:
+        ipv4_address: ${DB_IP}
+
+  redis:
+    restart: always
+    env_file: ./.env
+    build:
+      context: ./
+      dockerfile: ./docker/redis/Dockerfile
+      args:
+        DOCKER_USER: ${DOCKER_USER}
+        DOCKER_USER_ID: ${DOCKER_USER_ID}
+        REDIS_PORT: ${REDIS_PORT}
+        REDIS_DATABASES: 1
+        REDIS_AOF_ENABLED: yes
+    environment:
+      HOSTNAME: "redis"
+    volumes:
+      - ./data/redis:/data
+      - ./docker/redis/redis.conf:/data/redis.conf
+      - ./docker/redis/users.acl:/data/users.acl
+    command: redis-server /data/redis.conf
+    expose:
+      - ${REDIS_PORT}
+    networks:
+      common:
+        ipv4_address: $REDIS_IP
+
+  admin:
+    restart: always
+    env_file: ./.env
+    user: ${DOCKER_USER}
+    build:
+      context: ../
+      dockerfile: ./src/docker/admin/Dockerfile
+      target: dev
+      args:
+        DOCKER_USER: ${DOCKER_USER}
+        DOCKER_USER_ID: ${DOCKER_USER_ID}
+        PROJECT_NAME: ${PROJECT_NAME}
+        PROJECT_BASE_DIR: ${PROJECT_BASE_DIR}
+        ADMIN_CACHE_DIR: ${ADMIN_CACHE_DIR}
+        BACKEND_BASE_DIR: ${BACKEND_BASE_DIR}
+        ADMIN_BASE_DIR: ${ADMIN_BASE_DIR}
+        ADMIN_STATIC_ROOT: ${ADMIN_STATIC_ROOT}
+        ADMIN_MEDIA_ROOT: ${ADMIN_MEDIA_ROOT}
+    environment:
+      HOSTNAME: infosys
+    # POSTGRES DB CREDS
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    # REDIS CREDS
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_USER: ${REDIS_USER}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      # WARNING: MUST create paths before running `compose up`
+      # STATIC FILES
+      - ./data/admin/static:${ADMIN_STATIC_ROOT}
+      # MEDIA FILES
+      - ./data/admin/media:${ADMIN_MEDIA_ROOT}
+      # PROJECT DIRS
+      - ./src/backend:${BACKEND_BASE_DIR}
+      - ./src/admin:${ADMIN_BASE_DIR}
+      # PROJECT FILES
+      - ./docker/backend/settings.py:${BACKEND_BASE_DIR}/settings.py
+      - ./docker/admin/settings.py:${PROJECT_BASE_DIR}/settings.py
+      - ./docker/admin/wsgi.py:${PROJECT_BASE_DIR}/wsgi.py
+      - ./docker/admin/entrypoint.sh:${PROJECT_BASE_DIR}/entrypoint.sh
+      - ../django_admin_adapter:${PROJECT_BASE_DIR}/django_admin_adapter
+    expose:
+      - ${ADMIN_PORT}
+    ports:
+      - ${ADMIN_PORT}:${ADMIN_PORT}
+    entrypoint: "${PROJECT_BASE_DIR}/entrypoint.sh"
+    command: "${PROJECT_BASE_DIR}/entrypoint.sh"
+    depends_on:
+      - db
+      - redis
+    networks:
+      common:
+        ipv4_address: ${ADMIN_IP}
+
+  admin_api:
+    restart: always
+    env_file: ./.env
+    user: ${DOCKER_USER}
+    build:
+      context: ../
+      dockerfile: ./src/docker/admin_api/Dockerfile
+      target: dev
+      args:
+        DOCKER_USER: ${DOCKER_USER}
+        DOCKER_USER_ID: ${DOCKER_USER_ID}
+        PROJECT_NAME: ${PROJECT_NAME}
+        PROJECT_BASE_DIR: ${PROJECT_BASE_DIR}
+        ADMIN_API_CACHE_DIR: ${ADMIN_API_CACHE_DIR}
+        BACKEND_BASE_DIR: ${BACKEND_BASE_DIR}
+        ADMIN_API_BASE_DIR: ${ADMIN_API_BASE_DIR}
+        ADMIN_API_STATIC_ROOT: ${ADMIN_API_STATIC_ROOT}
+        ADMIN_API_MEDIA_ROOT: ${ADMIN_API_MEDIA_ROOT}
+    environment:
+      HOSTNAME: admin_api
+    # POSTGRES DB CREDS
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    # REDIS CREDS
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_USER: ${REDIS_USER}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      # WARNING: MUST create paths before running `compose up`
+      # STATIC FILES
+      - ./data/admin_api/static:${ADMIN_API_STATIC_ROOT}
+      # MEDIA FILES
+      - ./data/admin/media:${ADMIN_API_MEDIA_ROOT}
+      # PROJECT DIRS
+      - ./src/backend:${BACKEND_BASE_DIR}
+      - ./src/admin_api:${ADMIN_API_BASE_DIR}
+      # PROJECT FILES
+      - ./docker/backend/settings.py:${BACKEND_BASE_DIR}/settings.py
+      - ./docker/admin_api/settings.py:${PROJECT_BASE_DIR}/settings.py
+      - ./docker/admin_api/wsgi.py:${PROJECT_BASE_DIR}/wsgi.py
+      - ./docker/admin_api/entrypoint.sh:${PROJECT_BASE_DIR}/entrypoint.sh
+      - ../django_admin_adapter:${PROJECT_BASE_DIR}/django_admin_adapter
+    expose:
+      - ${ADMIN_API_PORT}
+    ports:
+      - 8888:${ADMIN_API_PORT}
+    entrypoint: "${PROJECT_BASE_DIR}/entrypoint.sh"
+    command: "${PROJECT_BASE_DIR}/entrypoint.sh"
+    depends_on:
+      - db
+      - redis
+      - admin
+    networks:
+      common:
+        ipv4_address: ${ADMIN_API_IP}
+
+networks:
+  common:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: $COMMON_SUBNET

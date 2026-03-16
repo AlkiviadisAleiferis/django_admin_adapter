@@ -1,0 +1,100 @@
+[tool.poetry]
+name = "django_admin_adapter"
+version = "1.0.0"
+description = "A django admin adapter, to expose an API conversion of your admin site."
+authors = ["Alkiviadis Aleiferis <alkiviadis.aliferis@gmail.com>"]
+maintainers = ["Alkiviadis Aleiferis <alkiviadis.aliferis@gmail.com>"]
+repository = "https://github.com/AlkiviadisAleiferis/django_admin_adapter"
+homepage = "https://github.com/AlkiviadisAleiferis/django_admin_adapter"
+keywords = [
+  "api",
+  "rest-api",
+  "django",
+  "django-admin",
+  "django-admin-interface",
+  "django-admin-api",
+  "django-admin-adapter",
+  "django-rest-framework",
+]
+classifiers = [
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Information Technology",
+  "Framework :: Django",
+  "Framework :: Django :: 4",
+  "Framework :: Django :: 5",
+]
+readme = "README.md"
+license = "Apache-2.0"
+packages = [{include = "django_admin_adapter"}]
+
+[tool.poetry.dependencies]
+python = ">=3.9"
+django = ">=4"
+djangorestframework = ">=3"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit-hooks = "4.4.*"
+pre-commit = "3.4.*"
+ruff = "0.0.*"
+black = "23.9.0"
+djangorestframework-simplejwt = ">=5"
+
+[tool.pytest.ini_options]
+addopts = "-vv -x --disable-warnings"
+console_output_style = "progress"
+log_level = "DEBUG"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 95
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | db/postgredata
+  | redis/data
+)/
+'''
+
+[tool.ruff]
+line-length = 90
+exclude = [
+    # "*/tests/*.py",
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "build",
+    "dist",
+    "pyenv",
+    "*/migrations/*.py"
+]
+
+[tool.ruff.lint]
+ignore = ["F401", "E741"]
+
+[tool.isort]
+profile = "black"

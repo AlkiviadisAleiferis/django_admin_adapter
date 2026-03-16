@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "admin API"
+version = "1.0"
+description = "A django admin adapter, to expose an API version of your admin."
+authors = ["Alkiviadis Aleiferis <alkiviadis.aliferis@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+django = "^4"
+djangorestframework = "^3"
+djangorestframework-simplejwt = "^5"
+django-admin-autocomplete-filter = "0.7.*"
+django-cacheops = "7.0.*"
+django-redis = "5.4.*"
+redis = "5.0.*"
+django-jazzmin = "3.0.*"
+django-cleanup = "8.1.*"
+django-cors-headers = "4.6.*"
+pillow = "10.2.*"
+python-dateutil = "*"
+psycopg2 = "2.9.*"
+python-slugify = "8.0.*"
+coverage = "7.3.*"
+pytest = "7.4.*"
+pytest-mock ="3.11.*"
+pytest-cov = "4.1.*"
+pytest-django = "4.5.*"
+factory-boy = "3.3.*"
+ruff = "0.0.*"
+black = "23.9.0"
+django-debug-toolbar = "4.3.*"
+django-silk = "^5.3.2"
+
+[tool.pytest.ini_options]
+addopts = "-vv -x --disable-warnings"
+console_output_style = "progress"
+log_level = "DEBUG"
+DJANGO_SETTINGS_MODULE = "settings"
+python_files = ["test_*.py", "*_test.py", "tests/test_*"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
