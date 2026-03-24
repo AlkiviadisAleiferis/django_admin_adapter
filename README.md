@@ -1,4 +1,4 @@
-![Alt image](https://github.com/AlkiviadisAleiferis/django_admin_api_adapter/blob/main/docs/source/_static/official_logo.svg)
+![Alt image](https://github.com/AlkiviadisAleiferis/django_admin_adapter/blob/main/docs/source/_static/official_logo.svg)
 
 ## Welcome
 
