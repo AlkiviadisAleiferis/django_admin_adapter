@@ -2,13 +2,16 @@
 
 ## Welcome
 
+See the [live demo here](https://django-admin-adapter-demo.com)!
+
+user: demo \
+pass: demo
+
 Django Admin Adapter is a package aiming to convert almost instantly an Admin Site,
 to a series of battle ready API endpoints, with minimum effort.
 
 There is also a [React Front-End](https://github.com/AlkiviadisAleiferis/react_django_admin)
 to base your entire admin projects on.
-
-Also a live demo of the project will soon be available.
 
 ## Table of Contents
 
